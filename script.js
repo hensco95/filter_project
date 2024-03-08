@@ -90,6 +90,11 @@ let cartItemCount = 0;
 // init product element array
 const productElements = [];
 
+// Event listeners for filtering
+filtersContainer.addEventListener("change", filterProducts);
+
+searchInput.addEventListener("input", filterProducts);
+
 // loop over products and create an element for each product
 products.forEach((product) => {
   const productElement = createProductElement(product);
@@ -132,10 +137,58 @@ function updateCart(e) {
 
   if (statusElement.classList.contains("added")) {
     // remove from cart, change text and color
+    statusElement.classList.remove("added");
+    statusElement.innerText = "Added to Cart";
+    statusElement.classList.remove("bg-red-600");
+    statusElement.classList.add("bg-gray-800");
+
+    cartItemCount--;
   } else {
     // add to cart
     statusElement.classList.add("added");
     statusElement.innerText = "Remove from Cart";
     statusElement.classList.remove("bg-gray-800");
+    statusElement.classList.add("bg-red-600");
+
+    cartItemCount++;
   }
+
+  // update cart item count
+  cartCount.innerText = cartItemCount.toString();
+  console.log(cartItemCount);
+}
+
+// filter function by checks and search input
+function filterProducts() {
+  // Get search term
+  const searchTerm = searchInput.value.trim().toLowerCase();
+
+  // Get checked categories
+  const checkedCategories = Array.from(checkboxes)
+    .filter((checkbox) => {
+      return checkbox.checked;
+    })
+    .map((checkbox) => checkbox.id);
+
+  // loop over products and check for matches
+  productElements.forEach((productElement, index) => {
+    const product = products[index];
+
+    // check for a product match from search or checkbox
+    const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm);
+
+    // checkbox category
+    const isInCheckedCategory =
+      checkedCategories.length === 0 ||
+      checkedCategories.includes(product.category);
+
+    // show or hide product based on matches
+    if (matchesSearchTerm && isInCheckedCategory) {
+      productElement.classList.remove("hidden");
+    } else {
+      productElement.classList.add("hidden");
+    }
+  });
+
+
 }
